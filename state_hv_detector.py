@@ -1,7 +1,6 @@
 import pandas as pd
 from scada_fetcher import fetchScadaPntRealData
 
-
 class StateHvDetector:
     voltViolLims = {765: {'high': 800, 'low': 740},
                     400: {'high': 420, 'low': 380},
