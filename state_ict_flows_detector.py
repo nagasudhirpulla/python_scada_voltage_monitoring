@@ -29,7 +29,7 @@ class StateIctFlowsDetector:
         stateSuffixes = stateSuffixInfoDf[stateSuffixInfoDf.State == state].Tag.tolist(
         )
         # get all the brs corresponding to the state
-        stateIctsDf = ictsDf[~ictsDf.dev_num.apply(str).str.contains('t', case=False, regex=True) & ictsDf.ss_suffix.isin(
+        stateIctsDf = ictsDf[ictsDf.dev_num.apply(str).str.contains('t', case=False, regex=True) & ictsDf.ss_suffix.isin(
             stateSuffixes)][['point', 'substation', 'dev_num']]
         # find the bus voltage of each bus
         stateIctsDf['data'] = stateIctsDf.point.apply(

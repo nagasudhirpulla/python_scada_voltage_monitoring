@@ -29,7 +29,7 @@ class StateGtFlowsDetector:
         stateSuffixes = stateSuffixInfoDf[stateSuffixInfoDf.State == state].Tag.tolist(
         )
         # get all the brs corresponding to the state
-        stateGtsDf = gtsDf[~gtsDf.dev_num.apply(str).str.contains('g|u', case=False, regex=True) & gtsDf.ss_suffix.isin(
+        stateGtsDf = gtsDf[gtsDf.dev_num.apply(str).str.contains('g|u', case=False, regex=True) & gtsDf.ss_suffix.isin(
             stateSuffixes)][['point', 'substation', 'dev_num']]
         # find the bus voltage of each bus
         stateGtsDf['data'] = stateGtsDf.point.apply(
