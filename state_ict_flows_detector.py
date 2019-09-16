@@ -1,6 +1,7 @@
 import pandas as pd
 from scada_fetcher import fetchScadaPntRealData
 
+
 class StateIctFlowsDetector:
     masterFilePath = None
     ictsDf = None
@@ -11,13 +12,13 @@ class StateIctFlowsDetector:
         if masterFilePath not in [None, '']:
             # read bus voltages master data
             ictsDf = pd.read_excel(
-                masterFilePath, sheet_name=sheetName)
+                masterFilePath, sheetname=sheetName)
             ictsDf.point = ictsDf.service + ictsDf.point
             del ictsDf['service']
             self.ictsDf = ictsDf
             # read the state suffixes info to map with other sheets
             stateSuffixInfoDf = pd.read_excel(
-                masterFilePath, sheet_name=stateTagsSheetName)
+                masterFilePath, sheetname=stateTagsSheetName)
             self.stateSuffixInfoDf = stateSuffixInfoDf
 
     # returns indices of buses which have high voltage
@@ -30,10 +31,10 @@ class StateIctFlowsDetector:
         )
         # get all the brs corresponding to the state
         stateIctsDf = ictsDf[ictsDf.dev_num.apply(str).str.contains('t', case=False, regex=True) & ictsDf.ss_suffix.isin(
-            stateSuffixes)][['point', 'substation', 'dev_num']]
+            stateSuffixes)][['point', 'substation', 'dev_num', 'is_flipped']]
         # find the bus voltage of each bus
-        stateIctsDf['data'] = stateIctsDf.point.apply(
-            lambda x: fetchScadaPntRealData(x))
+        stateIctsDf['data'] = stateIctsDf.apply(
+            lambda x: fetchScadaPntRealData(x.point)*(1 if x.is_flipped == 0 else -1), axis=1)
         # find if the bus voltages are high above limits
         stateIctsDf['is_flow_reverse'] = stateIctsDf.apply(lambda x: True if (
             x['data'] < -1) else False, axis=1)

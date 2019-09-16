@@ -1,6 +1,7 @@
 import pandas as pd
 from scada_fetcher import fetchScadaPntRealData
 
+
 class StateHvDetector:
     voltViolLims = {765: {'high': 800, 'low': 740},
                     400: {'high': 420, 'low': 380},
@@ -14,13 +15,13 @@ class StateHvDetector:
         if masterFilePath not in [None, '']:
             # read bus voltages master data
             busVoltsDf = pd.read_excel(
-                masterFilePath, sheet_name=sheetName)
+                masterFilePath, sheetname=sheetName)
             busVoltsDf.point = busVoltsDf.service + busVoltsDf.point
             del busVoltsDf['service']
             self.busVoltsDf = busVoltsDf
             # read the state suffixes info to map with other sheets
             stateSuffixInfoDf = pd.read_excel(
-                masterFilePath, sheet_name=stateTagsSheetName)
+                masterFilePath, sheetname=stateTagsSheetName)
             self.stateSuffixInfoDf = stateSuffixInfoDf
 
     # returns indices of buses which have high voltage
@@ -35,12 +36,12 @@ class StateHvDetector:
         )
         # get all the buses corresponding to the state
         stateBusesDf = busVoltsDf[busVoltsDf.ss_suffix.isin(
-            stateSuffixes)][['point', 'substation', 'dev_num']]
+            stateSuffixes)][['point', 'substation', 'dev_num', 'is_flipped']]
         # find the bus voltage of each bus
         stateBusesDf['base_voltage'] = stateBusesDf.dev_num.apply(lambda x: 400 if x.startswith(
             '4') else 765 if x.startswith('7') else 220 if x.startswith('2') else 0)
-        stateBusesDf['data'] = stateBusesDf.point.apply(
-            lambda x: fetchScadaPntRealData(x))
+        stateBusesDf['data'] = stateBusesDf.apply(
+            lambda x: fetchScadaPntRealData(x.point)*(1 if x.is_flipped == 0 else -1), axis=1)
         # find if the bus voltages are high above limits
         stateBusesDf['is_high_volt'] = stateBusesDf.apply(lambda x: True if (
             abs(x['data']) > voltViolLims[x.base_voltage]['high']) else False, axis=1)

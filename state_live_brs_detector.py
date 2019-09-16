@@ -1,6 +1,7 @@
 import pandas as pd
 from scada_fetcher import fetchScadaPntRealData
 
+
 class StateLiveBrsDetector:
     masterFilePath = None
     brsDf = None
@@ -11,13 +12,13 @@ class StateLiveBrsDetector:
         if masterFilePath not in [None, '']:
             # read bus voltages master data
             brsDf = pd.read_excel(
-                masterFilePath, sheet_name=sheetName)
+                masterFilePath, sheetname=sheetName)
             brsDf.point = brsDf.service + brsDf.point
             del brsDf['service']
             self.brsDf = brsDf
             # read the state suffixes info to map with other sheets
             stateSuffixInfoDf = pd.read_excel(
-                masterFilePath, sheet_name=stateTagsSheetName)
+                masterFilePath, sheetname=stateTagsSheetName)
             self.stateSuffixInfoDf = stateSuffixInfoDf
 
     # returns indices of buses which have high voltage
@@ -30,10 +31,10 @@ class StateLiveBrsDetector:
         )
         # get all the brs corresponding to the state
         stateBrsDf = brsDf[~brsDf.dev_num.apply(str).str.endswith('LR') & brsDf.ss_suffix.isin(
-            stateSuffixes)][['point', 'substation', 'dev_num']]
+            stateSuffixes)][['point', 'substation', 'dev_num', 'is_flipped']]
         # find the bus voltage of each bus
-        stateBrsDf['data'] = stateBrsDf.point.apply(
-            lambda x: fetchScadaPntRealData(x))
+        stateBrsDf['data'] = stateBrsDf.apply(
+            lambda x: fetchScadaPntRealData(x.point)*(1 if x.is_flipped == 0 else -1), axis=1)
         # find if the bus voltages are high above limits
         stateBrsDf['is_br_on'] = stateBrsDf.apply(lambda x: True if (
             abs(x['data']) > 5) else False, axis=1)

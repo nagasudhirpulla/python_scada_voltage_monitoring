@@ -3,7 +3,7 @@ import pandas as pd
 scadaMasterFilename = 'secret/scada_points.xlsx'
 
 # read state suffix tags info from excel
-stateSuffixInfoDf = pd.read_excel(scadaMasterFilename, sheet_name='state_tags')
+stateSuffixInfoDf = pd.read_excel(scadaMasterFilename, sheetname='state_tags')
 
 # dump voltages data
 busVoltsMasterDf = pd.read_excel(scadaMasterFilename, 'bus_voltages')
@@ -13,8 +13,8 @@ busVoltsMasterDf = busVoltsMasterDf[busVoltsMasterDf['ss_suffix'].isin(
 busVoltsMasterDf.point = busVoltsMasterDf.service + busVoltsMasterDf.point
 del busVoltsMasterDf['service']
 # get real time scada data for the points
-busVoltsMasterDf['data'] = busVoltsMasterDf.point.apply(
-    lambda x: fetchScadaPntRealData(x))
+busVoltsMasterDf['data'] = busVoltsMasterDf.apply(
+    lambda x: fetchScadaPntRealData(x.point)*(1 if x.is_flipped == 0 else -1), axis=1)
 # dump the results
 busVoltsMasterDf.to_excel('dumps/bus_volts_dump.xlsx', index=False)
 
@@ -26,8 +26,8 @@ brMasterDf = brMasterDf[~brMasterDf.dev_num.apply(str).str.endswith('LR') & brMa
 brMasterDf.point = brMasterDf.service + brMasterDf.point
 del brMasterDf['service']
 # get real time scada data for the points
-brMasterDf['data'] = brMasterDf.point.apply(
-    lambda x: fetchScadaPntRealData(x))
+brMasterDf['data'] = brMasterDf.apply(
+    lambda x: fetchScadaPntRealData(x.point)*(1 if x.is_flipped == 0 else -1), axis=1)
 # dump the results
 brMasterDf.to_excel('dumps/br_dump.xlsx', index=False)
 
@@ -40,8 +40,8 @@ ictMasterDf = ictMasterDf[ictMasterDf.dev_num.apply(str).str.contains('t', case=
 ictMasterDf.point = ictMasterDf.service + ictMasterDf.point
 del ictMasterDf['service']
 # get real time scada data for the points
-ictMasterDf['data'] = ictMasterDf.point.apply(
-    lambda x: fetchScadaPntRealData(x))
+ictMasterDf['data'] = ictMasterDf.apply(
+    lambda x: fetchScadaPntRealData(x.point)*(1 if x.is_flipped == 0 else -1), axis=1)
 # dump the results
 ictMasterDf.to_excel('dumps/ict_dump.xlsx', index=False)
 
@@ -53,7 +53,7 @@ gtMasterDf = gtMasterDf[gtMasterDf.dev_num.apply(str).str.contains('g|u', case=F
 gtMasterDf.point = gtMasterDf.service + gtMasterDf.point
 del gtMasterDf['service']
 # get real time scada data for the points
-gtMasterDf['data'] = gtMasterDf.point.apply(
-    lambda x: fetchScadaPntRealData(x))
+gtMasterDf['data'] = gtMasterDf.apply(
+    lambda x: fetchScadaPntRealData(x.point)*(1 if x.is_flipped == 0 else -1), axis=1)
 # dump the results
 gtMasterDf.to_excel('dumps/gt_dump.xlsx', index=False)
