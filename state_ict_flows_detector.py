@@ -32,6 +32,8 @@ class StateIctFlowsDetector:
         # get all the brs corresponding to the state
         stateIctsDf = ictsDf[ictsDf.dev_num.apply(str).str.contains('t', case=False, regex=True) & ictsDf.ss_suffix.isin(
             stateSuffixes)][['point', 'substation', 'dev_num', 'is_flipped']]
+        if stateIctsDf.shape[0] == 0:
+            return stateIctsDf
         # find the bus voltage of each bus
         stateIctsDf['data'] = stateIctsDf.apply(
             lambda x: fetchScadaPntRealData(x.point)*(1 if x.is_flipped == 0 else -1), axis=1)
@@ -39,14 +41,16 @@ class StateIctFlowsDetector:
         stateIctsDf['is_flow_reverse'] = stateIctsDf.apply(lambda x: True if (
             x['data'] < -1) else False, axis=1)
         ictInfo = stateIctsDf[stateIctsDf.is_flow_reverse == isFlowReverse]
+        ictInfo = ictInfo[ictInfo['data'].abs() > 1]
         return ictInfo
-    
+
     def generateMessage(self, state, isFlowReverse=True):
         stateIctsInfo = self.getIctsInfoForState(state, isFlowReverse)
         if stateIctsInfo.shape[0] == 0:
             return 'Number of ICTs = 0'
         # https://stackoverflow.com/questions/15705630/get-the-rows-which-have-the-max-value-in-groups-using-groupby
-        ictStrings = stateIctsInfo.sort_values(by=['substation']).apply(lambda b: '{0} {1} ({2:.2f} MVAR)'.format(b.substation, b.dev_num, b['data']), axis=1).tolist()
+        ictStrings = stateIctsInfo.sort_values(by=['substation']).apply(
+            lambda b: '{0} {1} ({2:.2f} MVAR)'.format(b.substation, b.dev_num, b['data']), axis=1).tolist()
         messageStr = 'Number of ICTs = {0}, '.format(len(ictStrings))
         messageStr += ', '.join(ictStrings)
         return messageStr

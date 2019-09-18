@@ -3,3 +3,4 @@ __pycache__/*
 .vscode/*
 dumps/*
 secret/*
+output.txt

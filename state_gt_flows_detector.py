@@ -32,6 +32,8 @@ class StateGtFlowsDetector:
         # get all the brs corresponding to the state
         stateGtsDf = gtsDf[gtsDf.dev_num.apply(str).str.contains('g|u', case=False, regex=True) & gtsDf.ss_suffix.isin(
             stateSuffixes)][['point', 'substation', 'dev_num', 'is_flipped']]
+        if stateGtsDf.shape[0] == 0:
+            return stateGtsDf
         # find the bus voltage of each bus
         stateGtsDf['data'] = stateGtsDf.apply(
             lambda x: fetchScadaPntRealData(x.point)*(1 if x.is_flipped == 0 else -1), axis=1)
@@ -39,6 +41,7 @@ class StateGtFlowsDetector:
         stateGtsDf['is_flow_reverse'] = stateGtsDf.apply(lambda x: True if (
             x['data'] < -1) else False, axis=1)
         gtsInfo = stateGtsDf[stateGtsDf.is_flow_reverse == isFlowReverse]
+        gtsInfo = gtsInfo[gtsInfo['data'].abs() > 1]
         return gtsInfo
     
     def generateMessage(self, state, isFlowReverse=True):

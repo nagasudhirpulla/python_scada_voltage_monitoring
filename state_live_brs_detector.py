@@ -32,6 +32,8 @@ class StateLiveBrsDetector:
         # get all the brs corresponding to the state
         stateBrsDf = brsDf[~brsDf.dev_num.apply(str).str.endswith('LR') & brsDf.ss_suffix.isin(
             stateSuffixes)][['point', 'substation', 'dev_num', 'is_flipped']]
+        if stateBrsDf.shape[0] == 0:
+            return stateBrsDf
         # find the bus voltage of each bus
         stateBrsDf['data'] = stateBrsDf.apply(
             lambda x: fetchScadaPntRealData(x.point)*(1 if x.is_flipped == 0 else -1), axis=1)

@@ -37,6 +37,8 @@ class StateHvDetector:
         # get all the buses corresponding to the state
         stateBusesDf = busVoltsDf[busVoltsDf.ss_suffix.isin(
             stateSuffixes)][['point', 'substation', 'dev_num', 'is_flipped']]
+        if stateBusesDf.shape[0] == 0:
+            return stateBusesDf
         # find the bus voltage of each bus
         stateBusesDf['base_voltage'] = stateBusesDf.dev_num.apply(lambda x: 400 if x.startswith(
             '4') else 765 if x.startswith('7') else 220 if x.startswith('2') else 0)
