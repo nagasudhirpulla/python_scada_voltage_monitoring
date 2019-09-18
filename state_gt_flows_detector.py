@@ -40,3 +40,13 @@ class StateGtFlowsDetector:
             x['data'] < -1) else False, axis=1)
         gtsInfo = stateGtsDf[stateGtsDf.is_flow_reverse == isFlowReverse]
         return gtsInfo
+    
+    def generateMessage(self, state, isFlowReverse=True):
+        stateGtsInfo = self.getGtsInfoForState(state, isFlowReverse)
+        if stateGtsInfo.shape[0] == 0:
+            return 'Number of GTs = 0'
+        # https://stackoverflow.com/questions/15705630/get-the-rows-which-have-the-max-value-in-groups-using-groupby
+        gtStrings = stateGtsInfo.sort_values(by=['substation']).apply(lambda b: '{0} {1} ({2:.2f} MVAR)'.format(b.substation, b.dev_num, b['data']), axis=1).tolist()
+        messageStr = 'Number of GTs = {0}, '.format(len(gtStrings))
+        messageStr += ', '.join(gtStrings)
+        return messageStr

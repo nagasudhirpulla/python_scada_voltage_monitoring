@@ -40,3 +40,13 @@ class StateLiveBrsDetector:
             abs(x['data']) > 5) else False, axis=1)
         brsInfo = stateBrsDf[stateBrsDf.is_br_on == isOn]
         return brsInfo
+
+    def generateMessage(self, state, isOn=True):
+        stateOffBrsInfo = self.getBrsInfoForState(state, isOn)
+        if stateOffBrsInfo.shape[0] == 0:
+            return 'Number of Bus Reactors = 0'
+        # https://stackoverflow.com/questions/15705630/get-the-rows-which-have-the-max-value-in-groups-using-groupby
+        brStrings = stateOffBrsInfo.sort_values(by=['substation']).apply(lambda b: '{0} {1}'.format(b.substation, b.dev_num), axis=1).tolist()
+        messageStr = 'Number of Bus Reactors = {0}, '.format(len(brStrings))
+        messageStr += ', '.join(brStrings)
+        return messageStr
