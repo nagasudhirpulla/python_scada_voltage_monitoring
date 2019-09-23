@@ -26,13 +26,14 @@ gtsDetector = StateGtFlowsDetector('secret/scada_points.xlsx')
 stateNames = {'gj': 'Gujarat', 'mh': 'Maharashtra',
               'mp': 'Madhya Pradesh', 'cg': 'Chhattisgarh'}
 messageStr = ''
+stateRepLineSeparator = "-------------------------------------------"
 for st in ['gj', 'mh', 'mp', 'cg']:
     stateHvBusMessage = hvDetector.generateMessage(st, isForHigh=True)
     stateOffBrsMessage = brsDetector.generateMessage(st, isOn=False)
     stateIctsMessage = ictsDetector.generateMessage(st, isFlowReverse=False)
     stateGtsMessage = gtsDetector.generateMessage(st, isFlowReverse=False)
-    messageStr += '{0}\n{1}\n{2}\n{3}\n{4}\n\n\n'.format(stateNames[st], stateHvBusMessage,
-                                                    stateOffBrsMessage, stateIctsMessage, stateGtsMessage)
+    messageStr += '{0} Report\n\n{1}\n\n{2}\n\n{3}\n\n{4}\n{5}\n\n'.format(stateNames[st], stateHvBusMessage,
+                                                    stateOffBrsMessage, stateIctsMessage, stateGtsMessage, stateRepLineSeparator)
 
 with open(outFilePath, 'w') as f:
     f.write(messageStr)

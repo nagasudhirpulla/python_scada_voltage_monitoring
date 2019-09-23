@@ -49,6 +49,6 @@ class StateLiveBrsDetector:
             return 'Number of Bus Reactors = 0'
         # https://stackoverflow.com/questions/15705630/get-the-rows-which-have-the-max-value-in-groups-using-groupby
         brStrings = stateOffBrsInfo.sort_values(by=['substation']).apply(lambda b: '{0} {1}'.format(b.substation, b.dev_num), axis=1).tolist()
-        messageStr = 'Number of Bus Reactors = {0}, '.format(len(brStrings))
-        messageStr += ', '.join(brStrings)
+        messageStr = 'Number of Bus Reactors = {0}\n'.format(len(brStrings))
+        messageStr += '\n'.join(brStrings)
         return messageStr

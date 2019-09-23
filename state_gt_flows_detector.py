@@ -50,6 +50,6 @@ class StateGtFlowsDetector:
             return 'Number of GTs = 0'
         # https://stackoverflow.com/questions/15705630/get-the-rows-which-have-the-max-value-in-groups-using-groupby
         gtStrings = stateGtsInfo.sort_values(by=['substation']).apply(lambda b: '{0} {1} ({2:.2f} MVAR)'.format(b.substation, b.dev_num, b['data']), axis=1).tolist()
-        messageStr = 'Number of GTs = {0}, '.format(len(gtStrings))
-        messageStr += ', '.join(gtStrings)
+        messageStr = 'Number of GTs = {0}\n'.format(len(gtStrings))
+        messageStr += '\n'.join(gtStrings)
         return messageStr

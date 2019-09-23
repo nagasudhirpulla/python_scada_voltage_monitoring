@@ -62,6 +62,6 @@ class StateHvDetector:
         hvSsList = stateHvBusInfo[idx].sort_values(by=['pu_val'], ascending=False)
         ssStrings = hvSsList.apply(
             lambda h: '{0} ({1:.2f} kV)'.format(h.substation, h['data']), axis=1).tolist()
-        messageStr = 'Number of HV Substations = {0}, '.format(len(ssStrings))
-        messageStr += ', '.join(ssStrings)
+        messageStr = 'Number of HV Substations = {0}\n'.format(len(ssStrings))
+        messageStr += '\n'.join(ssStrings)
         return messageStr

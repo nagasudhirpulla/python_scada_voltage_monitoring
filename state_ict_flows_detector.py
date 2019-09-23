@@ -51,6 +51,6 @@ class StateIctFlowsDetector:
         # https://stackoverflow.com/questions/15705630/get-the-rows-which-have-the-max-value-in-groups-using-groupby
         ictStrings = stateIctsInfo.sort_values(by=['substation']).apply(
             lambda b: '{0} {1} ({2:.2f} MVAR)'.format(b.substation, b.dev_num, b['data']), axis=1).tolist()
-        messageStr = 'Number of ICTs = {0}, '.format(len(ictStrings))
-        messageStr += ', '.join(ictStrings)
+        messageStr = 'Number of ICTs = {0}\n'.format(len(ictStrings))
+        messageStr += '\n'.join(ictStrings)
         return messageStr
