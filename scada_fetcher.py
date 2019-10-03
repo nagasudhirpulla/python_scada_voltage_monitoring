@@ -38,7 +38,7 @@ def fetchScadaPntRealData(pntId):
     if len(respSegs) < 2:
         return None
     else:
-        return float(respSegs[1])
+        return float(respSegs[0])
 
 
 def convertEpochMsToDt(epochMs):
