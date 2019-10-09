@@ -12,7 +12,7 @@ from subprocess import Popen, PIPE, TimeoutExpired
 import datetime as dt
 
 
-def fetchScadaPntRealApiData(pntId):
+def fetchScadaPntRealData(pntId):
     urlStr = "http://localhost:62448/api/values/real"
     paramsObj = {'pnt': pntId}
     r = requests.get(url=urlStr, params=paramsObj)
@@ -24,7 +24,7 @@ def fetchScadaPntRandData(pntId):
     return random.randint(-50, 50)
 
 
-def fetchScadaPntRealData(pntId):
+def fetchScadaPntRealExeData(pntId):
     command = "./ScadaCsharpNodeAdapter.exe"
     proc = Popen([command, "--request_type", "real",
                   "--meas_id", pntId], stdout=PIPE)
