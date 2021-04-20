@@ -46,9 +46,11 @@ class StateLiveBrsDetector:
     def generateMessage(self, state, isOn=True):
         stateOffBrsInfo = self.getBrsInfoForState(state, isOn)
         if stateOffBrsInfo.shape[0] == 0:
-            return 'Number of Bus Reactors = 0'
+            return ''
         # https://stackoverflow.com/questions/15705630/get-the-rows-which-have-the-max-value-in-groups-using-groupby
         brStrings = stateOffBrsInfo.sort_values(by=['substation']).apply(lambda b: '{0} {1}'.format(b.substation, b.dev_num), axis=1).tolist()
-        messageStr = 'Number of Bus Reactors = {0}\n'.format(len(brStrings))
+        switchStateStr = "in service" if isOn else "out"
+        messageStr = 'The following Bus reactors are {0} in {1} substations: \n'.format(switchStateStr, state)
+        messageStr += 'Number of Bus Reactors {0} = {1}\n'.format(switchStateStr, len(brStrings))
         messageStr += '\n'.join(brStrings)
         return messageStr
