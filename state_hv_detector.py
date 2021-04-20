@@ -54,7 +54,7 @@ class StateHvDetector:
     def generateMessage(self, state, isForHigh=True):
         stateHvBusInfo = self.getHvBusesInfoForState(state, isForHigh)
         if stateHvBusInfo.shape[0] == 0:
-            return 'Number of Substations = 0'
+            return ''
         stateHvBusInfo['pu_val'] = stateHvBusInfo['data']/stateHvBusInfo['base_voltage']
         # https://stackoverflow.com/questions/15705630/get-the-rows-which-have-the-max-value-in-groups-using-groupby
         idx = stateHvBusInfo.groupby(['substation'])['pu_val'].transform(
@@ -62,6 +62,7 @@ class StateHvDetector:
         hvSsList = stateHvBusInfo[idx].sort_values(by=['pu_val'], ascending=False)
         ssStrings = hvSsList.apply(
             lambda h: '{0} ({1:.2f} kV)'.format(h.substation, h['data']), axis=1).tolist()
-        messageStr = 'Number of HV Substations = {0}\n'.format(len(ssStrings))
+        messageStr = "High voltages prevailed at the following {0} substations: \n".format(state)
+        messageStr += 'Number of High Voltage substations = {0}\n'.format(len(ssStrings))
         messageStr += '\n'.join(ssStrings)
         return messageStr
