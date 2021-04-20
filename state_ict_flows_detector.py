@@ -47,10 +47,11 @@ class StateIctFlowsDetector:
     def generateMessage(self, state, isFlowReverse=True):
         stateIctsInfo = self.getIctsInfoForState(state, isFlowReverse)
         if stateIctsInfo.shape[0] == 0:
-            return 'Number of ICTs = 0'
+            return ''
         # https://stackoverflow.com/questions/15705630/get-the-rows-which-have-the-max-value-in-groups-using-groupby
         ictStrings = stateIctsInfo.sort_values(by=['substation']).apply(
             lambda b: '{0} {1} ({2:.2f} MVAR)'.format(b.substation, b.dev_num, b['data']), axis=1).tolist()
-        messageStr = 'Number of ICTs = {0}\n'.format(len(ictStrings))
+        messageStr = 'MVAR flow is from LV side to HV side in the following ICTs of {0} substations: \n'.format(state)
+        messageStr += 'Number of ICTs = {0}\n'.format(len(ictStrings))
         messageStr += '\n'.join(ictStrings)
         return messageStr
