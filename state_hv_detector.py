@@ -36,7 +36,7 @@ class StateHvDetector:
         )
         # get all the buses corresponding to the state
         stateBusesDf = busVoltsDf[busVoltsDf.ss_suffix.isin(
-            stateSuffixes)][['point', 'substation', 'dev_num', 'is_flipped']]
+            stateSuffixes)][['point', 'substation', 'station_name', 'dev_num', 'is_flipped']]
         if stateBusesDf.shape[0] == 0:
             return stateBusesDf
         # find the bus voltage of each bus
@@ -61,7 +61,7 @@ class StateHvDetector:
             max) == stateHvBusInfo['pu_val']
         hvSsList = stateHvBusInfo[idx].sort_values(by=['pu_val'], ascending=False)
         ssStrings = hvSsList.apply(
-            lambda h: '{0} ({1:.2f} kV)'.format(h.substation, h['data']), axis=1).tolist()
+            lambda h: '{0} ({1:.2f} kV)'.format(h.station_name, h['data']), axis=1).tolist()
         messageStr = "High voltages prevailed at the following {0} substations: \n".format(state)
         messageStr += 'Number of High Voltage substations = {0}\n'.format(len(ssStrings))
         messageStr += '\n'.join(ssStrings)
