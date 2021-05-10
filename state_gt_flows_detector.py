@@ -31,7 +31,7 @@ class StateGtFlowsDetector:
         )
         # get all the brs corresponding to the state
         stateGtsDf = gtsDf[gtsDf.dev_num.apply(str).str.contains('g|u', case=False, regex=True) & gtsDf.ss_suffix.isin(
-            stateSuffixes)][['point', 'substation', 'dev_num', 'is_flipped']]
+            stateSuffixes)][['point', 'substation', 'station_name', 'dev_num', 'is_flipped']]
         if stateGtsDf.shape[0] == 0:
             return stateGtsDf
         # find the bus voltage of each bus
@@ -49,7 +49,7 @@ class StateGtFlowsDetector:
         if stateGtsInfo.shape[0] == 0:
             return ''
         # https://stackoverflow.com/questions/15705630/get-the-rows-which-have-the-max-value-in-groups-using-groupby
-        gtStrings = stateGtsInfo.sort_values(by=['substation']).apply(lambda b: '{0} {1} ({2:.2f} MVAR)'.format(b.substation, b.dev_num, b['data']), axis=1).tolist()
+        gtStrings = stateGtsInfo.sort_values(by=['station_name']).apply(lambda b: '{0} {1} ({2:.2f} MVAR)'.format(b.station_name, b.dev_num, b['data']), axis=1).tolist()
         messageStr = 'The following GTs are not absorbing MVAR in {0} substations: \n'.format(len(gtStrings))
         messageStr += 'Number of GTs = {0}\n'.format(len(gtStrings))
         messageStr += '\n'.join(gtStrings)
