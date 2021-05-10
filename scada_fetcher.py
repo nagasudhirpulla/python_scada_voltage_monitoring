@@ -10,10 +10,11 @@ import random
 import requests
 from subprocess import Popen, PIPE, TimeoutExpired
 import datetime as dt
+from appConfig import getAppConfig
 
 
 def fetchScadaPntRealData(pntId):
-    urlStr = "http://localhost:62448/api/values/real"
+    urlStr = getAppConfig()["rtDataUrlBase"]
     paramsObj = {'pnt': pntId}
     r = requests.get(url=urlStr, params=paramsObj)
     data = r.json()
@@ -21,6 +22,10 @@ def fetchScadaPntRealData(pntId):
 
 
 def fetchScadaPntRandData(pntId):
+    return random.randint(-50, 50)
+
+
+def fetchScadaPntRealData1(pntId):
     return random.randint(-50, 50)
 
 
