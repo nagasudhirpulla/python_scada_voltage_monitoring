@@ -1,11 +1,14 @@
 import pandas as pd
-import random
+from appConfig import loadAppConfig
 from state_hv_detector import StateHvDetector
 from state_live_brs_detector import StateLiveBrsDetector
 from state_ict_flows_detector import StateIctFlowsDetector
 from state_gt_flows_detector import StateGtFlowsDetector
 
 outFilePath = 'output.txt'
+
+appConf = loadAppConfig()
+rtDataUrlBase = appConf["rtDataUrlBase"]
 
 hvDetector = StateHvDetector('secret/scada_points.xlsx')
 # stateHvBusInfo = hvDetector.getHvBusesInfoForState('gj', isForHigh=True)
