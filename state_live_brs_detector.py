@@ -31,7 +31,7 @@ class StateLiveBrsDetector:
         )
         # get all the brs corresponding to the state
         stateBrsDf = brsDf[~brsDf.dev_num.apply(str).str.endswith('LR') & brsDf.ss_suffix.isin(
-            stateSuffixes)][['point', 'substation', 'dev_num', 'is_flipped']]
+            stateSuffixes)][['point', 'substation', 'station_name', 'dev_num', 'is_flipped']]
         if stateBrsDf.shape[0] == 0:
             return stateBrsDf
         # find the bus voltage of each bus
@@ -48,9 +48,12 @@ class StateLiveBrsDetector:
         if stateOffBrsInfo.shape[0] == 0:
             return ''
         # https://stackoverflow.com/questions/15705630/get-the-rows-which-have-the-max-value-in-groups-using-groupby
-        brStrings = stateOffBrsInfo.sort_values(by=['substation']).apply(lambda b: '{0} {1}'.format(b.substation, b.dev_num), axis=1).tolist()
+        brStrings = stateOffBrsInfo.sort_values(by=['station_name']).apply(
+            lambda b: '{0} {1}'.format(b.station_name, b.dev_num), axis=1).tolist()
         switchStateStr = "in service" if isOn else "out"
-        messageStr = 'The following Bus reactors are {0} in {1} substations: \n'.format(switchStateStr, state)
-        messageStr += 'Number of Bus Reactors {0} = {1}\n'.format(switchStateStr, len(brStrings))
+        messageStr = 'The following Bus reactors are {0} in {1} substations: \n'.format(
+            switchStateStr, state)
+        messageStr += 'Number of Bus Reactors {0} = {1}\n'.format(
+            switchStateStr, len(brStrings))
         messageStr += '\n'.join(brStrings)
         return messageStr
