@@ -4,3 +4,4 @@ __pycache__/*
 dumps/*
 secret/*
 output.txt
+!secret/.gitinclude 
