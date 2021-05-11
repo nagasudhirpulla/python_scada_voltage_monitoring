@@ -1,5 +1,7 @@
 import pandas as pd
 from scada_fetcher import fetchScadaPntRealData
+from appConfig import stateNames
+from texttable import Texttable
 
 
 class StateGtFlowsDetector:
@@ -12,13 +14,13 @@ class StateGtFlowsDetector:
         if masterFilePath not in [None, '']:
             # read bus voltages master data
             gtsDf = pd.read_excel(
-                masterFilePath, sheetname=sheetName)
+                masterFilePath, sheetName)
             gtsDf.point = gtsDf.service + gtsDf.point
             del gtsDf['service']
             self.gtsDf = gtsDf
             # read the state suffixes info to map with other sheets
             stateSuffixInfoDf = pd.read_excel(
-                masterFilePath, sheetname=stateTagsSheetName)
+                masterFilePath, stateTagsSheetName)
             self.stateSuffixInfoDf = stateSuffixInfoDf
 
     # returns indices of buses which have high voltage
@@ -43,14 +45,23 @@ class StateGtFlowsDetector:
         gtsInfo = stateGtsDf[stateGtsDf.is_flow_reverse == isFlowReverse]
         gtsInfo = gtsInfo[gtsInfo['data'].abs() > 1]
         return gtsInfo
-    
+
     def generateMessage(self, state, isFlowReverse=True):
         stateGtsInfo = self.getGtsInfoForState(state, isFlowReverse)
         if stateGtsInfo.shape[0] == 0:
             return ''
         # https://stackoverflow.com/questions/15705630/get-the-rows-which-have-the-max-value-in-groups-using-groupby
-        gtStrings = stateGtsInfo.sort_values(by=['station_name']).apply(lambda b: '{0} {1} ({2:.2f} MVAR)'.format(b.station_name, b.dev_num, b['data']), axis=1).tolist()
-        messageStr = 'The following GTs are not absorbing MVAR in {0} substations: \n'.format(len(gtStrings))
-        messageStr += 'Number of GTs = {0}\n'.format(len(gtStrings))
-        messageStr += '\n'.join(gtStrings)
+        gtRows = stateGtsInfo.sort_values(by=['station_name']).apply(
+            lambda b: [b.station_name, b.dev_num, '{0:.2f}'.format(b['data'])], axis=1).tolist()
+        messageStr = 'The following GTs are not absorbing MVAR in {0} substations: \n'.format(
+            stateNames[state])
+        messageStr += 'Number of GTs = {0}\n'.format(len(gtRows))
+        messageStr += '\n'
+        table = Texttable()
+        table.set_deco(Texttable.HEADER | Texttable.BORDER | Texttable.VLINES)
+        table.set_cols_dtype(['t', 't', 't'])
+        table.set_cols_align(["l", "l", "l"])
+        gtRows.insert(0, ["Substation", "Device Name", "MVAR"])
+        table.add_rows(gtRows)
+        messageStr += table.draw()
         return messageStr

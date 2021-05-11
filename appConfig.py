@@ -1,6 +1,9 @@
 # import json module
 import json
 
+stateNames = {'gj': 'Gujarat', 'mh': 'Maharashtra',
+              'mp': 'Madhya Pradesh', 'cg': 'Chhattisgarh', 'cs': 'Central Sector'}
+
 # initialize the app config global variable
 appConf = {}
 

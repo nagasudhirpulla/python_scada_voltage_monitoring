@@ -1,5 +1,5 @@
 import pandas as pd
-from appConfig import loadAppConfig
+from appConfig import loadAppConfig, stateNames
 from state_hv_detector import StateHvDetector
 from state_live_brs_detector import StateLiveBrsDetector
 from state_ict_flows_detector import StateIctFlowsDetector
@@ -26,8 +26,7 @@ gtsDetector = StateGtFlowsDetector('secret/scada_points.xlsx')
 # stateGtsInfo = gtsDetector.getGtsInfoForState('gj', isFlowReverse=True)
 # stateGtsMessage = gtsDetector.generateMessage('gj', isFlowReverse=False)
 
-stateNames = {'gj': 'Gujarat', 'mh': 'Maharashtra',
-              'mp': 'Madhya Pradesh', 'cg': 'Chhattisgarh', 'cs': 'Central Sector'}
+
 messageStr = ''
 stateRepLineSeparator = "-------------------------------------------"
 for st in ['gj', 'mh', 'mp', 'cg', 'cs']:
@@ -36,7 +35,7 @@ for st in ['gj', 'mh', 'mp', 'cg', 'cs']:
     stateIctsMessage = ictsDetector.generateMessage(st, isFlowReverse=True)
     stateGtsMessage = gtsDetector.generateMessage(st, isFlowReverse=False)
     messageStr += '{0} Substations Summary\n\n{1}\n\n{2}\n\n{3}\n\n{4}\n{5}\n\n'.format(stateNames[st], stateHvBusMessage,
-                                                    stateOffBrsMessage, stateIctsMessage, stateGtsMessage, stateRepLineSeparator)
+                                                                                        stateOffBrsMessage, stateIctsMessage, stateGtsMessage, stateRepLineSeparator)
 messageStr += """May please refer clause 5.2(S), 6.4.12, 6.6.3 in this regard.
 Request to
 1. Take up with concerned S/S to reduce MVAR flow from LV side to HV side by switching off capacitors,

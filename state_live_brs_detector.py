@@ -1,5 +1,7 @@
 import pandas as pd
 from scada_fetcher import fetchScadaPntRealData
+from appConfig import stateNames
+from texttable import Texttable
 
 
 class StateLiveBrsDetector:
@@ -12,13 +14,13 @@ class StateLiveBrsDetector:
         if masterFilePath not in [None, '']:
             # read bus voltages master data
             brsDf = pd.read_excel(
-                masterFilePath, sheetname=sheetName)
+                masterFilePath, sheetName)
             brsDf.point = brsDf.service + brsDf.point
             del brsDf['service']
             self.brsDf = brsDf
             # read the state suffixes info to map with other sheets
             stateSuffixInfoDf = pd.read_excel(
-                masterFilePath, sheetname=stateTagsSheetName)
+                masterFilePath, stateTagsSheetName)
             self.stateSuffixInfoDf = stateSuffixInfoDf
 
     # returns indices of buses which have high voltage
@@ -48,12 +50,19 @@ class StateLiveBrsDetector:
         if stateOffBrsInfo.shape[0] == 0:
             return ''
         # https://stackoverflow.com/questions/15705630/get-the-rows-which-have-the-max-value-in-groups-using-groupby
-        brStrings = stateOffBrsInfo.sort_values(by=['station_name']).apply(
-            lambda b: '{0} {1}'.format(b.station_name, b.dev_num), axis=1).tolist()
+        brRows = stateOffBrsInfo.sort_values(by=['station_name']).apply(
+            lambda b: [b.station_name, b.dev_num], axis=1).tolist()
         switchStateStr = "in service" if isOn else "out"
         messageStr = 'The following Bus reactors are {0} in {1} substations: \n'.format(
-            switchStateStr, state)
+            switchStateStr, stateNames[state])
         messageStr += 'Number of Bus Reactors {0} = {1}\n'.format(
-            switchStateStr, len(brStrings))
-        messageStr += '\n'.join(brStrings)
+            switchStateStr, len(brRows))
+        messageStr += '\n'
+        table = Texttable()
+        table.set_deco(Texttable.HEADER | Texttable.BORDER | Texttable.VLINES)
+        table.set_cols_dtype(['t', 't'])
+        table.set_cols_align(["l", "l"])
+        brRows.insert(0, ["Substation", "Device Name"])
+        table.add_rows(brRows)
+        messageStr += table.draw()
         return messageStr

@@ -1,5 +1,7 @@
 import pandas as pd
 from scada_fetcher import fetchScadaPntRealData
+from appConfig import stateNames
+from texttable import Texttable
 
 
 class StateIctFlowsDetector:
@@ -12,13 +14,13 @@ class StateIctFlowsDetector:
         if masterFilePath not in [None, '']:
             # read bus voltages master data
             ictsDf = pd.read_excel(
-                masterFilePath, sheetname=sheetName)
+                masterFilePath, sheetName)
             ictsDf.point = ictsDf.service + ictsDf.point
             del ictsDf['service']
             self.ictsDf = ictsDf
             # read the state suffixes info to map with other sheets
             stateSuffixInfoDf = pd.read_excel(
-                masterFilePath, sheetname=stateTagsSheetName)
+                masterFilePath, stateTagsSheetName)
             self.stateSuffixInfoDf = stateSuffixInfoDf
 
     # returns indices of buses which have high voltage
@@ -49,10 +51,17 @@ class StateIctFlowsDetector:
         if stateIctsInfo.shape[0] == 0:
             return ''
         # https://stackoverflow.com/questions/15705630/get-the-rows-which-have-the-max-value-in-groups-using-groupby
-        ictStrings = stateIctsInfo.sort_values(by=['station_name']).apply(
-            lambda b: '{0} {1} ({2:.2f} MVAR)'.format(b.station_name, b.dev_num, b['data']), axis=1).tolist()
+        ictRows = stateIctsInfo.sort_values(by=['station_name']).apply(
+            lambda b: [b.station_name, b.dev_num, '{0:.2f}'.format(b['data'])], axis=1).tolist()
         messageStr = 'MVAR flow is from LV side to HV side in the following ICTs of {0} substations: \n'.format(
-            state)
-        messageStr += 'Number of ICTs = {0}\n'.format(len(ictStrings))
-        messageStr += '\n'.join(ictStrings)
+            stateNames[state])
+        messageStr += 'Number of ICTs = {0}\n'.format(len(ictRows))
+        messageStr += '\n'
+        table = Texttable()
+        table.set_deco(Texttable.HEADER | Texttable.BORDER | Texttable.VLINES)
+        table.set_cols_dtype(['t', 't', 't'])
+        table.set_cols_align(["l", "l", "l"])
+        ictRows.insert(0, ["Substation", "Device Name", "MVAR"])
+        table.add_rows(ictRows)
+        messageStr += table.draw()
         return messageStr

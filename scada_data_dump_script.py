@@ -3,7 +3,7 @@ import pandas as pd
 scadaMasterFilename = 'secret/scada_points.xlsx'
 
 # read state suffix tags info from excel
-stateSuffixInfoDf = pd.read_excel(scadaMasterFilename, sheetname='state_tags')
+stateSuffixInfoDf = pd.read_excel(scadaMasterFilename, 'state_tags')
 
 # dump voltages data
 busVoltsMasterDf = pd.read_excel(scadaMasterFilename, 'bus_voltages')
